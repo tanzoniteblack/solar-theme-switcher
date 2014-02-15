@@ -1,7 +1,9 @@
 # solar-theme-switcher.el
 
 Author: Ryan Smith (rnsmith2@gmail.com)
+
 Date 02/14/2014
+
 Inspired (and forked) from moe-theme-switcher by kuanyui (https://github.com/kuanyui/moe-theme.el)
 
 ## Installation
@@ -41,4 +43,7 @@ Sunrise & Sunset times can be varied by use of the `sunrise-flex-time` and `suns
 
 ## Installing themes
 
-If the themes you wish to use don't come with emacs, then be sure to load the directory they're contained in to `custom-theme-load-path`, such as: `(add-to-list 'custom-theme-load-path "/path/to/moe-theme.el/")`
+If the themes you wish to use don't come with emacs, then make sure to load the directory they're contained in to `custom-theme-load-path`, such as:
+```lisp
+    (add-to-list 'custom-theme-load-path "/path/to/moe-theme.el/")
+```
