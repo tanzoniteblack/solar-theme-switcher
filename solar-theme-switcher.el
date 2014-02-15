@@ -33,7 +33,7 @@
 (defvar solar-theme-switcher-current-theme nil "Variable to hold the current theme used for solar-theme-switcher.el.")
 
 (defun switch-theme (theme-to-switch-to)
-  "Avoid unnecessary load-theme and screen flashing in GUI version Emacs"
+  "Switch to given theme. If current theme is already loaded, don't do anything to avoid unnecessary screen flashing in GUI version Emacs"
   (unless (equal solar-theme-switcher-current-theme
                  theme-to-switch-to)
     (progn (load-theme theme-to-switch-to t)
@@ -45,7 +45,8 @@
 (defvar fixed-sunrise 7.00 "Fake sunrise time, default is 7:00 am")
 (defvar fixed-sunset 18.00 "Fake sunset time, default is 18:00 (6:00 pm)")
 
-(defun daylightp ()
+(defun daylight-p ()
+  "If current time is between sunrise and sunset, return true, else nil."
   (let* ((sun-info (if (and (not use-fixed-sunrise-sunset) calendar-latitude calendar-longitude calendar-time-zone)
 					   (solar-sunrise-sunset (calendar-current-date))
 					 (list (list fixed-sunrise "PST") (list fixed-sunset "PST"))))
@@ -60,7 +61,8 @@
 
 (defun switch-theme-by-daylight (light-theme dark-theme)
   "When light outside, switch to given light theme, when dark outside switch to given dark theme."
-  (if (daylightp)
+  (interactive)
+  (if (daylight-p)
       (switch-theme light-theme)
     (switch-theme dark-theme)))
 
@@ -68,12 +70,14 @@
 (defvar solar-theme-switcher-check-daylight-every 10 "Check to see if still (not) daylight every N minutes.")
 
 (defun cancel-solar-theme-switcher ()
+  (interactive)
   (when solar-theme-switcher-running-timer
     (progn (cancel-timer solar-theme-switcher-running-timer)
            (set 'solar-theme-switcher-running-timer nil))))
 
 (defun initialize-solar-theme-switcher (light-theme dark-theme)
   "Initialize solar-theme-switcher.el to check whether it's daylight or not and adjust between the given light and dark themes appropriately. Cancel this by running cancel-solar-theme-switcher"
+  (interactive)
   (cancel-solar-theme-switcher)
   (switch-theme-by-daylight light-theme dark-theme)
   (setq solar-theme-switcher-running-timer
