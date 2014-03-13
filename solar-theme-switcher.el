@@ -1,13 +1,16 @@
+;;; package --- summary
 ;;; solar-theme-switcher.el
 ;;; Author: Ryan Smith (rnsmith2@gmail.com)
 ;;; Date 02/14/2014
 ;;; Inspired (and forked) from moe-theme-switcher by kuanyui (https://github.com/kuanyui/moe-theme.el)
 ;;;
+;;; Commentary:
+;;;
 ;;; Run like this to have the moe-light theme used when daylight outside and moe-dark theme used when dark
 ;;; (initialize-solar-theme-switcher 'moe-light 'moe-dark)
 ;;;
-;;; Sunrise and sunset times are read using (solar-sunrise-and-sunset) from built in solar package. In order to use this
-;;; longitude and latitude must be set, call (solar-setup) to configure this information. Or before calling
+;;; Sunrise and sunset times are read using (solar-sunrise-and-sunset) from built in solar package.  In order to use this
+;;; longitude and latitude must be set, call (solar-setup) to configure this information.  Or before calling
 ;;; initialize-solar-theme-switcher set latitude and longitude in .emacs.d like:
 ;;; (setq calendar-latitude +38.8977) (setq calendar-longitude -77.0366)
 ;;;
@@ -25,15 +28,17 @@
 ;;; If you don't wish to load a timer to have the theme continually checked for daylight, then just run the function
 ;;; switch-theme-by-daylight
 ;;;
-;;; If the themes you wish to use don't come with emacs, then be sure to load the directory they're contained in to
+;;; If the themes you wish to use don't come with Emacs, then be sure to load the directory they're contained in to
 ;;; custom-theme-load-path, such as: (add-to-list 'custom-theme-load-path "~/.live-packs/ryan-pack/lib/moe-theme.el/")
+;;; code:
 
 (require 'solar)
 
 (defvar solar-theme-switcher-current-theme nil "Variable to hold the current theme used for solar-theme-switcher.el.")
 
 (defun switch-theme (theme-to-switch-to)
-  "Switch to given theme. If current theme is already loaded, don't do anything to avoid unnecessary screen flashing in GUI version Emacs"
+  "Switch to THEME-TO-SWITCH-TO.  If current theme is already loaded, don't do anything to avoid unnecessary screen flashing in GUI version Emacs."
+  (interactive "STheme name")
   (unless (equal solar-theme-switcher-current-theme
                  theme-to-switch-to)
     (progn (load-theme theme-to-switch-to t)
@@ -51,7 +56,7 @@
 					   (solar-sunrise-sunset (calendar-current-date))
 					 (list (list fixed-sunrise "PST") (list fixed-sunset "PST"))))
          (sunrise-minutes (* 60 (car (car sun-info))))
-         (sunset-minutes (* 60 (car (second sun-info))))
+         (sunset-minutes (* 60 (car (car (cdr sun-info)))))
          (now (+ (* 60 (string-to-number (format-time-string "%H")))
                  (string-to-number (format-time-string "%M")))))
     (and (< sunrise-minutes
@@ -60,7 +65,7 @@
             (+ now sunset-flex-time)))))
 
 (defun switch-theme-by-daylight (light-theme dark-theme)
-  "When light outside, switch to given light theme, when dark outside switch to given dark theme."
+  "When light outside, switch to LIGHT-THEME, when dark outside switch to DARK-THEME."
   (interactive)
   (if (daylight-p)
       (switch-theme light-theme)
@@ -70,13 +75,14 @@
 (defvar solar-theme-switcher-check-daylight-every 10 "Check to see if still (not) daylight every N minutes.")
 
 (defun cancel-solar-theme-switcher ()
+  "Cancel the running timer, don't switch off current theme with sun anymore."
   (interactive)
   (when solar-theme-switcher-running-timer
     (progn (cancel-timer solar-theme-switcher-running-timer)
            (set 'solar-theme-switcher-running-timer nil))))
 
 (defun initialize-solar-theme-switcher (light-theme dark-theme)
-  "Initialize solar-theme-switcher.el to check whether it's daylight or not and adjust between the given light and dark themes appropriately. Cancel this by running cancel-solar-theme-switcher"
+  "Initialize solar-theme-switcher.el to check whether it's daylight or not and adjust between LIGHT-THEME and DARK-THEME appropriately.  Cancel this by running cancel-solar-theme-switcher."
   (interactive)
   (cancel-solar-theme-switcher)
   (switch-theme-by-daylight light-theme dark-theme)
@@ -88,3 +94,4 @@
                      dark-theme)))
 
 (provide 'solar-theme-switcher)
+;;; solar-theme-switcher ends here
